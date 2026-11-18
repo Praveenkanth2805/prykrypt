@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-ink-950 text-slate-200 antialiased;
+    background-image:
+      radial-gradient(60rem 40rem at 8% -12%, rgba(139, 92, 246, 0.20), transparent 60%),
+      radial-gradient(50rem 35rem at 100% 0%, rgba(217, 70, 239, 0.13), transparent 55%),
+      radial-gradient(45rem 32rem at 50% 120%, rgba(99, 102, 241, 0.14), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    @apply bg-pry-500/40 text-white;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(168, 85, 247, 0.45) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(168, 85, 247, 0.4);
+    border-radius: 9999px;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-pry-600 to-fuchsia-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pry-700/30 transition hover:from-pry-500 hover:to-fuchsia-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-pry-400/60 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:from-pry-600 disabled:hover:to-fuchsia-600;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-pry-500/40 hover:bg-white/[0.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-pry-400/40 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .field {
+    @apply w-full rounded-xl border border-white/10 bg-ink-900/80 px-3.5 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 transition focus:border-pry-500/60 focus:outline-none focus:ring-2 focus:ring-pry-500/20;
+  }
+
+  .label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400;
+  }
+
+  .mono {
+    @apply font-mono text-[13px];
+  }
+}
