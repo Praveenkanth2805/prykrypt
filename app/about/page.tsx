@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "How PryKrypt works, its technical design, and its limitations.",
+  description:
+    "Technical details of PryKrypt: container format, LSB embedding, AES-256-GCM encryption and known limitations.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {
