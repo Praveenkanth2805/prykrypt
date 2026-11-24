@@ -11,6 +11,7 @@ import { PryKryptError, toMessage } from "@/lib/errors";
 import { formatBytes } from "@/lib/format";
 import { readImageData } from "@/lib/image";
 import { extractContainer } from "@/lib/stego";
+import Reveal from "@/components/Reveal";
 
 type Stage = "idle" | "reading" | "locked" | "done" | "error";
 
@@ -136,6 +137,7 @@ export default function ExtractPanel() {
 
   return (
     <div className="space-y-6">
+      <Reveal>
       <header className="animate-fade-up">
         <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">Extract a Secret</h1>
         <p className="mt-2 max-w-2xl text-sm text-slate-400">
@@ -143,7 +145,8 @@ export default function ExtractPanel() {
           locally — nothing leaves your device.
         </p>
       </header>
-
+      </Reveal>
+      <Reveal>
       <section className="card animate-fade-up p-5 sm:p-6">
         <StepHeader
           index={1}
@@ -194,7 +197,7 @@ export default function ExtractPanel() {
           </div>
         ) : null}
       </section>
-
+        </Reveal>
       {stage === "locked" ? (
         <section className="card animate-fade-up p-5 sm:p-6">
           <StepHeader

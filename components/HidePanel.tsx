@@ -21,6 +21,7 @@ import {
   readImageForEncoding,
 } from "@/lib/image";
 import { embedBytes, extractContainer, getCapacityBytes } from "@/lib/stego";
+import Reveal from "@/components/Reveal";
 
 const MAX_SECRET_FILE_BYTES = 32 * 1024 * 1024;
 
@@ -228,6 +229,7 @@ export default function HidePanel() {
 
   return (
     <div className="space-y-6">
+      <Reveal>
       <header className="animate-fade-up">
         <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">Hide a Secret</h1>
         <p className="mt-2 max-w-2xl text-sm text-slate-400">
@@ -235,7 +237,8 @@ export default function HidePanel() {
           locally in your browser.
         </p>
       </header>
-
+      </Reveal>
+      <Reveal>
       <section className="card animate-fade-up p-5 sm:p-6">
         <StepHeader
           index={1}
@@ -280,7 +283,8 @@ export default function HidePanel() {
           )}
         </div>
       </section>
-
+      </Reveal>
+      <Reveal>
       <section className="card animate-fade-up p-5 sm:p-6">
         <StepHeader index={2} title="Secret payload" subtitle="Hide a text message or any file." />
 
@@ -377,7 +381,8 @@ export default function HidePanel() {
           </div>
         </div>
       </section>
-
+      </Reveal>
+      <Reveal>
       <section className="card animate-fade-up p-5 sm:p-6">
         <StepHeader index={3} title="Embed & download" subtitle="Capacity is validated before writing." />
 
@@ -481,6 +486,7 @@ export default function HidePanel() {
           </div>
         ) : null}
       </section>
+      </Reveal>
     </div>
   );
 }
