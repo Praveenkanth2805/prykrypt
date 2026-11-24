@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/hide", label: "Hide" },
   { href: "/extract", label: "Extract" },
   { href: "/about", label: "About" },
+  { href: "/privacy", label: "Privacy" },
 ];
 
 export default function NavBar() {
@@ -28,7 +29,7 @@ export default function NavBar() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1">
+        <nav className="flex flex-wrap items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1">
           {LINKS.map((link) => {
             const active =
               link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
@@ -37,7 +38,7 @@ export default function NavBar() {
                 key={link.href}
                 href={link.href}
                 className={[
-                  "rounded-lg px-3 py-1.5 text-xs font-semibold transition sm:text-sm",
+                  "rounded-lg px-2.5 py-1.5 text-xs font-semibold transition sm:px-3 sm:text-sm",
                   active
                     ? "bg-pry-600/25 text-pry-200 shadow-inner shadow-pry-500/20"
                     : "text-slate-400 hover:bg-white/5 hover:text-slate-100",
