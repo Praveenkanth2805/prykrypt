@@ -9,7 +9,7 @@ import { deserializePayload, type SecretPayload } from "@/lib/container";
 import { decryptBytes } from "@/lib/crypto";
 import { PryKryptError, toMessage } from "@/lib/errors";
 import { formatBytes } from "@/lib/format";
-import { imageToImageData, loadImage } from "@/lib/image";
+import { readImageData } from "@/lib/image";
 import { extractContainer } from "@/lib/stego";
 
 type Stage = "idle" | "reading" | "locked" | "done" | "error";
@@ -48,9 +48,7 @@ export default function ExtractPanel() {
       setResult({ kind: "text", text: payload.text ?? "" });
     } else {
       const bytes = payload.fileBytes ?? new Uint8Array(0);
-      const blob = new Blob([bytes], {
-        type: payload.mimeType || "application/octet-stream",
-      });
+      const blob = new Blob([bytes], { type: payload.mimeType || "application/octet-stream" });
       setResult({
         kind: "file",
         url: URL.createObjectURL(blob),
@@ -78,11 +76,10 @@ export default function ExtractPanel() {
       }
 
       try {
-        const url = URL.createObjectURL(file);
-        const image = await loadImage(url);
-        const data = await imageToImageData(image);
+        const previewUrl = URL.createObjectURL(file);
+        const data = await readImageData(file);
 
-        setImagePreview(url);
+        setImagePreview(previewUrl);
         setImageName(file.name);
         setDimensions({ width: data.width, height: data.height });
 

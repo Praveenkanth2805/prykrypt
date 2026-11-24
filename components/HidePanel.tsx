@@ -15,11 +15,10 @@ import { PryKryptError, toMessage } from "@/lib/errors";
 import { formatBytes, formatPercent } from "@/lib/format";
 import {
   MAX_PIXELS,
-  blobToImageData,
   cloneImageData,
   imageDataToPngBlob,
-  imageToImageData,
-  loadImage,
+  readImageData,
+  readImageForEncoding,
 } from "@/lib/image";
 import { embedBytes, extractContainer, getCapacityBytes } from "@/lib/stego";
 
@@ -40,6 +39,7 @@ export default function HidePanel() {
   const [imageData, setImageData] = useState<ImageData | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageName, setImageName] = useState("");
+  const [hadTransparency, setHadTransparency] = useState(false);
   const [mode, setMode] = useState<Mode>("text");
   const [message, setMessage] = useState("");
   const [secretFile, setSecretFile] = useState<File | null>(null);
@@ -64,6 +64,7 @@ export default function HidePanel() {
   const handleImage = useCallback(async (file: File) => {
     setError(null);
     setResult(null);
+    setHadTransparency(false);
 
     if (!file.type.startsWith("image/")) {
       setError("Please choose an image file. PNG is strongly recommended.");
@@ -71,21 +72,21 @@ export default function HidePanel() {
     }
 
     try {
-      const url = URL.createObjectURL(file);
-      const image = await loadImage(url);
+      const previewUrl = URL.createObjectURL(file);
+      const loaded = await readImageForEncoding(file);
 
-      if (image.naturalWidth * image.naturalHeight > MAX_PIXELS) {
-        URL.revokeObjectURL(url);
+      if (loaded.data.width * loaded.data.height > MAX_PIXELS) {
+        URL.revokeObjectURL(previewUrl);
         throw new PryKryptError(
           "IMAGE_TOO_LARGE",
           `Cover images above ${Math.round(MAX_PIXELS / 1_000_000)} megapixels are not supported.`,
         );
       }
 
-      const data = await imageToImageData(image);
-      setImageData(data);
-      setImagePreview(url);
+      setImageData(loaded.data);
+      setImagePreview(previewUrl);
       setImageName(file.name);
+      setHadTransparency(loaded.hadTransparency);
     } catch (cause) {
       setError(toMessage(cause, "Could not read this image."));
     }
@@ -134,6 +135,7 @@ export default function HidePanel() {
     setPassword("");
     setResult(null);
     setError(null);
+    setHadTransparency(false);
   };
 
   const handleEncode = async () => {
@@ -200,7 +202,7 @@ export default function HidePanel() {
       // End-to-end round-trip verification through a real PNG encode/decode.
       let verified = false;
       try {
-        const check = await blobToImageData(blob);
+        const check = await readImageData(blob);
         const roundTrip = extractContainer(check);
         verified =
           roundTrip.body.length === body.length &&
@@ -229,12 +231,11 @@ export default function HidePanel() {
       <header className="animate-fade-up">
         <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">Hide a Secret</h1>
         <p className="mt-2 max-w-2xl text-sm text-slate-400">
-          Embed a message or file into the least-significant bits of an image. Everything happens
-          locally in your browser — nothing is uploaded anywhere.
+          Embed a message or file into the least-significant bits of an image. All processing runs
+          locally in your browser.
         </p>
       </header>
 
-      {/* Step 1 — cover image */}
       <section className="card animate-fade-up p-5 sm:p-6">
         <StepHeader
           index={1}
@@ -247,11 +248,7 @@ export default function HidePanel() {
             <div className="grid gap-4 sm:grid-cols-[minmax(0,200px)_1fr] sm:items-center">
               <div className="overflow-hidden rounded-xl border border-white/10 bg-ink-900">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={imagePreview}
-                  alt="Cover preview"
-                  className="h-40 w-full object-contain"
-                />
+                <img src={imagePreview} alt="Cover preview" className="h-40 w-full object-contain" />
               </div>
               <div className="text-sm">
                 <p className="truncate font-semibold text-slate-100">{imageName}</p>
@@ -262,6 +259,12 @@ export default function HidePanel() {
                   Capacity:{" "}
                   <span className="font-semibold text-pry-300">{formatBytes(capacityBytes)}</span>
                 </p>
+                {hadTransparency ? (
+                  <p className="mt-2 text-xs text-amber-300/90">
+                    This image contained transparent pixels. They were composited onto black so the
+                    hidden payload round-trips losslessly.
+                  </p>
+                ) : null}
                 <button type="button" className="btn-ghost mt-3" onClick={handleReset} disabled={busy}>
                   Replace image
                 </button>
@@ -278,7 +281,6 @@ export default function HidePanel() {
         </div>
       </section>
 
-      {/* Step 2 — secret */}
       <section className="card animate-fade-up p-5 sm:p-6">
         <StepHeader index={2} title="Secret payload" subtitle="Hide a text message or any file." />
 
@@ -291,9 +293,7 @@ export default function HidePanel() {
               disabled={busy}
               className={[
                 "rounded-lg px-4 py-1.5 text-xs font-semibold uppercase tracking-wider transition",
-                mode === value
-                  ? "bg-pry-600/30 text-pry-200"
-                  : "text-slate-400 hover:text-slate-200",
+                mode === value ? "bg-pry-600/30 text-pry-200" : "text-slate-400 hover:text-slate-200",
               ].join(" ")}
             >
               {value === "text" ? "Text message" : "File"}
@@ -378,7 +378,6 @@ export default function HidePanel() {
         </div>
       </section>
 
-      {/* Step 3 — encode */}
       <section className="card animate-fade-up p-5 sm:p-6">
         <StepHeader index={3} title="Embed & download" subtitle="Capacity is validated before writing." />
 
@@ -412,12 +411,7 @@ export default function HidePanel() {
         ) : null}
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={handleEncode}
-            disabled={!canEncode}
-          >
+          <button type="button" className="btn-primary" onClick={handleEncode} disabled={!canEncode}>
             {busy ? (
               <>
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
@@ -435,11 +429,7 @@ export default function HidePanel() {
           </button>
 
           {result ? (
-            <a
-              className="btn-ghost"
-              href={result.url}
-              download="prykrypt-image.png"
-            >
+            <a className="btn-ghost" href={result.url} download="prykrypt-image.png">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="7 10 12 15 17 10" />
@@ -462,13 +452,13 @@ export default function HidePanel() {
           <div className="mt-5 animate-fade-up space-y-4">
             <Alert
               tone={result.verified ? "success" : "warning"}
-              title={result.verified ? "Secret embedded successfully" : "Embedded with a caveat"}
+              title={result.verified ? "Secret embedded successfully" : "Verification failed"}
             >
               {result.verified
-                ? `Round-trip verification passed — the payload was read back from the generated PNG${
+                ? `Round-trip verification passed — the payload was read back byte-for-byte from the generated PNG${
                     result.encrypted ? " (AES-256-GCM encrypted)" : " (not encrypted)"
                   }.`
-                : "The payload was written, but the round-trip check failed. The cover image may use semi-transparent pixels. Try an opaque PNG — the download is still available below."}
+                : "The payload was written, but the round-trip check could not confirm it. The file is still available below. If extraction fails later, re-encode with a standard opaque PNG cover image."}
             </Alert>
 
             <div className="grid gap-4 sm:grid-cols-[minmax(0,220px)_1fr] sm:items-center">
