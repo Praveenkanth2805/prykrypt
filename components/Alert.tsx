@@ -13,9 +13,12 @@ const TONES: Record<AlertProps["tone"], string> = {
 
 export default function Alert({ tone, title, children }: AlertProps) {
   return (
-    <div className={`rounded-xl border px-4 py-3 text-sm ${TONES[tone]}`} role="status">
-      {title ? <p className="mb-0.5 font-semibold">{title}</p> : null}
-      <div className="leading-relaxed">{children}</div>
+    <div
+      className={`rounded-xl border px-3.5 py-3 text-[13px] leading-relaxed sm:px-4 sm:text-sm ${TONES[tone]}`}
+      role="status"
+    >
+      {title ? <p className="mb-1 font-semibold">{title}</p> : null}
+      <div className="break-words">{children}</div>
     </div>
   );
 }
