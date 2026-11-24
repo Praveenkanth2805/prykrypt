@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { UploadCloud } from "lucide-react";
 
 interface ImageDropzoneProps {
   onFile: (file: File) => void;
@@ -52,12 +53,12 @@ export default function ImageDropzone({
         if (!disabled) handleFiles(event.dataTransfer.files);
       }}
       className={[
-        "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-12 text-center transition",
+        "flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-4 py-8 text-center transition sm:min-h-[220px] sm:px-6 sm:py-12",
         disabled
           ? "cursor-not-allowed border-white/10 opacity-60"
           : dragging
             ? "border-pry-400 bg-pry-500/10"
-            : "border-white/15 bg-white/[0.02] hover:border-pry-500/50 hover:bg-pry-500/5",
+            : "border-white/15 bg-white/[0.02] hover:border-pry-500/50 hover:bg-pry-500/5 active:border-pry-400 active:bg-pry-500/10",
       ].join(" ")}
     >
       <input
@@ -72,16 +73,14 @@ export default function ImageDropzone({
         }}
       />
 
-      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-pry-500/15 text-pry-300">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="17 8 12 3 7 8" />
-          <line x1="12" y1="3" x2="12" y2="15" />
-        </svg>
+      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-pry-500/15 text-pry-300 sm:h-14 sm:w-14">
+        <UploadCloud size={22} strokeWidth={1.8} />
       </span>
 
-      <span className="text-sm font-semibold text-slate-100">{title}</span>
-      {hint ? <span className="max-w-sm text-xs text-slate-400">{hint}</span> : null}
+      <span className="text-sm font-semibold text-slate-100 sm:text-base">{title}</span>
+      {hint ? (
+        <span className="max-w-sm text-xs leading-relaxed text-slate-400 sm:text-sm">{hint}</span>
+      ) : null}
     </div>
   );
 }
