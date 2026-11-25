@@ -160,6 +160,27 @@ export function parseHeader(bytes: Uint8Array): ContainerHeader {
       `This image uses PryKrypt format version ${version}, which this build cannot read.`,
     );
   }
+  
+const JPEG_SIGNATURE = [0xff, 0xd8, 0xff];
+const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47];
+
+function detectFormat(bytes: Uint8Array): "jpeg" | "png" | "unknown" {
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return "jpeg";
+  }
+  if (bytes.length >= 4 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) {
+    return "png";
+  }
+  return "unknown";
+}
+
+// Magic bytes check fail ஆனால்:
+if (detectFormat(bytes) === "jpeg") {
+  throw new PryKryptError(
+    "JPEG_DETECTED",
+    "This is a JPEG image. PryKrypt requires the original PNG — JPEG compression destroys the hidden payload. Ask the sender to share the original PNG as a file (not as a photo)."
+  );
+}
 
   const flags = bytes[9];
   const bodyLength =
