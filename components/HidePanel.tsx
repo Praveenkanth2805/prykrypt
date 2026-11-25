@@ -1,7 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Download, ImagePlus, KeyRound, Lock, RefreshCw, ShieldCheck, X } from "lucide-react";
+import {
+  Download,
+  ImagePlus,
+  Info,
+  KeyRound,
+  Lock,
+  RefreshCw,
+  Share2,
+  ShieldCheck,
+  X,
+} from "lucide-react";
 
 import Alert from "@/components/Alert";
 import ImageDropzone from "@/components/ImageDropzone";
@@ -26,6 +36,7 @@ type Mode = "text" | "file";
 
 interface EncodeResult {
   url: string;
+  file: File;
   size: number;
   width: number;
   height: number;
@@ -47,6 +58,24 @@ export default function HidePanel() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<EncodeResult | null>(null);
 
+  const [sharing, setSharing] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const [shareSupported, setShareSupported] = useState(false);
+
+  /* Feature-detect file sharing once on mount. */
+  useEffect(() => {
+    if (typeof navigator === "undefined") return;
+    if (typeof navigator.canShare !== "function" || typeof navigator.share !== "function") {
+      return;
+    }
+    try {
+      const probe = new File([new Uint8Array([0])], "probe.png", { type: "image/png" });
+      setShareSupported(navigator.canShare({ files: [probe] }));
+    } catch {
+      /* older browsers can throw — treat as unsupported */
+    }
+  }, []);
+
   useEffect(() => {
     return () => {
       if (imagePreview) URL.revokeObjectURL(imagePreview);
@@ -63,6 +92,7 @@ export default function HidePanel() {
     setError(null);
     setResult(null);
     setHadTransparency(false);
+    setShareError(null);
 
     if (!file.type.startsWith("image/")) {
       setError("Please choose an image file. PNG is strongly recommended.");
@@ -134,6 +164,8 @@ export default function HidePanel() {
     setResult(null);
     setError(null);
     setHadTransparency(false);
+    setShareError(null);
+    setSharing(false);
   };
 
   const handleEncode = async () => {
@@ -145,6 +177,7 @@ export default function HidePanel() {
     setBusy(true);
     setError(null);
     setResult(null);
+    setShareError(null);
 
     try {
       let plain: Uint8Array;
@@ -208,8 +241,11 @@ export default function HidePanel() {
         verified = false;
       }
 
+      const file = new File([blob], "prykrypt-image.png", { type: "image/png" });
+
       setResult({
         url: URL.createObjectURL(blob),
+        file,
         size: blob.size,
         width: working.width,
         height: working.height,
@@ -220,6 +256,29 @@ export default function HidePanel() {
       setError(toMessage(cause, "Encoding failed."));
     } finally {
       setBusy(false);
+    }
+  };
+
+  const handleShare = async () => {
+    if (!result) return;
+    setShareError(null);
+    setSharing(true);
+
+    try {
+      await navigator.share({
+        files: [result.file],
+        title: "PryKrypt — Your Secrets, Hidden in Pixels.",
+        text: "Open this PNG in PryKrypt to unlock the hidden secret. Keep it as the original PNG — converting it to JPEG destroys the payload.",
+      });
+    } catch (err) {
+      // The user cancelling the share sheet throws AbortError — that is not a failure.
+      if (err instanceof Error && err.name !== "AbortError") {
+        setShareError(
+          "Sharing failed. Download the PNG and send it as a document (not as a photo).",
+        );
+      }
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -461,7 +520,7 @@ export default function HidePanel() {
             </div>
           ) : null}
 
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <button
               type="button"
               className="btn-primary w-full sm:w-auto"
@@ -491,7 +550,41 @@ export default function HidePanel() {
                 Download PNG
               </a>
             ) : null}
+
+            {result && shareSupported ? (
+              <button
+                type="button"
+                className="btn-ghost w-full justify-center sm:w-auto"
+                onClick={handleShare}
+                disabled={sharing}
+              >
+                {sharing ? (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                ) : (
+                  <Share2 size={16} />
+                )}
+                Share as file
+              </button>
+            ) : null}
           </div>
+
+          {result ? (
+            <p className="mt-3 flex items-start gap-1.5 text-xs leading-relaxed text-slate-500">
+              <Info size={13} className="mt-0.5 shrink-0" />
+              <span>
+                Always send this PNG{" "}
+                <strong className="text-slate-300">as a file or document</strong> — sharing it as a
+                photo in chat apps recompresses the image and destroys the hidden data. The Share
+                button does this automatically when your browser supports it.
+              </span>
+            </p>
+          ) : null}
+
+          {shareError ? (
+            <div className="mt-3">
+              <Alert tone="warning">{shareError}</Alert>
+            </div>
+          ) : null}
 
           {error ? (
             <div className="mt-4">
