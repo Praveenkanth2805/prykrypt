@@ -108,8 +108,43 @@ export default function PrivacyPage() {
       </Reveal>
 
       <Reveal>
+  <section className="card p-6">
+    <h2 className="text-lg font-bold text-white">5. Sharing PryKrypt images</h2>
+    <p className="mt-3 text-sm leading-relaxed text-slate-400">
+      PryKrypt relies on lossless PNG data. Many chat and social apps automatically recompress
+      photos to JPEG when you send them as images, which permanently destroys the hidden payload.
+      To transfer a PryKrypt image safely:
+    </p>
+    <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-slate-400">
+      <li>
+        <strong className="text-slate-200">Attach it as a document</strong>, not as a photo. Use
+        your app&apos;s paperclip / file-attach option rather than the image picker.
+      </li>
+      <li>
+        <strong className="text-slate-200">Use a channel that does not recompress:</strong> email
+        attachment, Google Drive, AirDrop, or a file-sharing service.
+      </li>
+      <li>
+        <strong className="text-slate-200">Zip the PNG</strong> before sending if the app insists
+        on treating images as photos. A ZIP file is delivered unchanged.
+      </li>
+      <li>
+        <strong className="text-slate-200">The recipient must download the file</strong> before
+        opening it in PryKrypt. Chat apps preview images using a recompressed thumbnail, which no
+        longer contains the payload.
+      </li>
+    </ul>
+    <p className="mt-3 text-sm leading-relaxed text-slate-400">
+      If a PryKrypt image is ever converted to JPEG, resized, cropped, or edited in any way, the
+      payload is gone and cannot be recovered. There is no way for PryKrypt to reverse that
+      damage — this is a property of lossy image compression, not a limitation of the tool.
+    </p>
+  </section>
+</Reveal>
+
+      <Reveal>
         <section className="card p-6">
-          <h2 className="text-lg font-bold text-white">5. Contact</h2>
+          <h2 className="text-lg font-bold text-white">6. Contact</h2>
           <p className="mt-3 text-sm leading-relaxed text-slate-400">
             PryKrypt is an independent project by{" "}
             <a

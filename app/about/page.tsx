@@ -70,6 +70,8 @@ const STEPS = [
 const LIMITS = [
   "PryKrypt PNGs must be opened with PryKrypt — they are not compatible with Steghide or other tools.",
   "Keep the file as PNG. Saving it as JPEG, resizing, cropping or editing it will destroy the hidden data.",
+  "Send the PNG as a document, not as a photo. Chat apps recompress photos to JPEG and destroy the payload.",
+  "The recipient must download the file before opening it in PryKrypt — chat previews are recompressed.",
   "Without a password, the secret is hidden but not encrypted.",
   "There is no password recovery. Lose the password and the payload is unrecoverable.",
 ];
