@@ -10,6 +10,9 @@ const CREATOR_URL = "https://praveenkanth-g.vercel.app/";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  verification: {
+    google: "RdYckMqKa8nAtaBuypwgtsEaYCK1PRXIiQVYlDh1mFs",
+  },
   title: {
     default: "PryKrypt — Your Secrets, Hidden in Pixels.",
     template: "%s · PryKrypt",
