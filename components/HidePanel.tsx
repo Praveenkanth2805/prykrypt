@@ -594,50 +594,19 @@ export default function HidePanel() {
             </div>
           ) : null}
 
-          {result ? (
-            <div className="mt-5 animate-fade-up space-y-4">
-              <Alert
-                tone={result.verified ? "success" : "warning"}
-                title={result.verified ? "Secret embedded successfully" : "Verification failed"}
-              >
-                {result.verified
-                  ? `Round-trip verification passed — the payload was read back byte-for-byte from the generated PNG${
-                      result.encrypted ? " (AES-256-GCM encrypted)" : " (not encrypted)"
-                    }.`
-                  : "The payload was written, but the round-trip check could not confirm it. The file is still available below. If extraction fails later, re-encode with a standard opaque PNG cover image."}
-              </Alert>
-
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="overflow-hidden rounded-xl border border-white/10 bg-ink-900">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={result.url}
-                    alt="Generated PryKrypt image"
-                    className="h-40 w-full object-contain sm:h-44 sm:w-52"
-                  />
-                </div>
-                <div className="min-w-0 flex-1 text-sm text-slate-300">
-                  <p className="truncate font-semibold text-slate-100">prykrypt-image.png</p>
-                  <p className="mt-1 text-slate-400">
-                    {result.width} × {result.height} px · {formatBytes(result.size)}
-                  </p>
-                  <ul className="mt-3 space-y-1 text-xs leading-relaxed text-slate-500">
-                    <li>• Keep the file as PNG — re-saving as JPEG destroys the payload.</li>
-                    <li>• Do not resize, crop or compress the image.</li>
-                    <li>
-                      •{" "}
-                      {result.encrypted
-                        ? "A password is required to extract."
-                        : "No password was set — anyone can extract this."}
-                    </li>
-                  </ul>
-                  <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-emerald-300/90">
-                    <ShieldCheck size={13} /> Stays on your device
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : null}
+{result ? (
+  <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5">
+    <p className="flex items-start gap-2 text-xs leading-relaxed text-amber-100/90">
+      <Info size={14} className="mt-0.5 shrink-0 text-amber-300" />
+      <span>
+        <strong className="text-amber-200">Do not share this PNG through photo / image sharing.</strong>{" "}
+        WhatsApp, Telegram and iMessage recompress photos to JPEG, which destroys the hidden payload.
+        Download the file and attach it as a{" "}
+        <strong className="text-amber-200">document</strong>, or zip it before sending.
+      </span>
+    </p>
+  </div>
+) : null}
         </section>
       </Reveal>
     </div>
