@@ -152,6 +152,11 @@ elsewhere.
   through the canvas; PryKrypt warns you if verification fails.
 - There is no password recovery. A lost password means an unrecoverable payload.
 - Cover images above 20 megapixels are rejected to keep browser memory usage safe.
+- Always share the generated PNG **as a file or document** — not as a photo.
+  Chat apps that recompress photos (WhatsApp, Telegram, Instagram, iMessage photo mode)
+  convert the image to JPEG and destroy the payload. The Share button in the Hide panel
+  uses the Web Share API with `files`, which sends the PNG as a document through the
+  native share sheet.
 
 ---
 
